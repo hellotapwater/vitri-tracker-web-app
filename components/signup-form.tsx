@@ -9,12 +9,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth"
-import { doc, setDoc } from "firebase/firestore"
-import { auth, db } from "@/lib/firebase"
+import { createUserWithEmailAndPassword } from "firebase/auth"
+import { auth } from "@/lib/firebase"
 
 export function SignupForm() {
-  const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
@@ -33,17 +31,10 @@ export function SignupForm() {
     setIsLoading(true)
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password)
-      await updateProfile(userCredential.user, { displayName: name })
+      await createUserWithEmailAndPassword(auth, email, password)
 
-      await setDoc(doc(db, "users", userCredential.user.uid), {
-        name,
-        email,
-        createdAt: new Date().toISOString(),
-      })
-
-      toast({ title: "Success", description: "Account created successfully!" })
-      router.push("/dashboard")
+      toast({ title: "Success", description: "Account created! Let's set up your profile." })
+      router.push("/onboarding")
     } catch (error: any) {
       console.error("[v0] Signup error:", error)
       toast({
@@ -64,18 +55,6 @@ export function SignupForm() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Full Name</Label>
-            <Input
-              id="name"
-              type="text"
-              placeholder="John Doe"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-          </div>
-
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
